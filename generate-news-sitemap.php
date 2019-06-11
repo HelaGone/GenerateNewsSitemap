@@ -1,7 +1,7 @@
 <?php 
 	/**
 	 * Plugin Name: Generate News Sitemap
-	 * Plugin URI:  https://github.com/HelaGone/
+	 * Plugin URI:  https://github.com/HelaGone/GenerateNewsSitemap
 	 * Description: Generate xml file for google news sitemap
 	 * Version:     1.0.0
 	 * Author:      Holkan Luna
@@ -26,11 +26,9 @@
 	register_deactivation_hook( __FILE__, 'gns_deactivation_fn' );
 
 	function gns_get_sitemap_posts($post_id, $post){
-		$today = date('r');
-		$antier = date('F j, Y', strtotime('-2 days', strtotime($today)));
-		if('breaking'===get_post_type($post_id)){
+		if('post'===get_post_type($post_id)){
 			$args = array(
-				'post_type'=>'breaking',
+				'post_type'=>'post',
 				'post_status'=>'publish',
 				'orderby'=>'date',
 				'order'=>'DESC',
@@ -40,7 +38,7 @@
 						'inclusive'=>true
 					)
 				),
-				'posts_per_page'=>50,
+				'posts_per_page'=>1000,
 			);
 			$news = get_posts($args);
 			gns_generate_xml_file($news);
@@ -48,7 +46,7 @@
 
 	}
 
-	add_action('publish_breaking', 'gns_get_sitemap_posts', 10, 2);
+	add_action('publish_post', 'gns_get_sitemap_posts', 10, 2);
 
 	function gns_generate_xml_file($posts_object){
 		date_default_timezone_set('America/Mexico_City');
@@ -62,9 +60,10 @@
 			$post_permalink = get_the_permalink($p_object->ID);
 			$post_thumbnail_url = get_the_post_thumbnail_url($p_object->ID);
 
-			$post_publish_date = gmdate('c', strtotime($p_object->post_date_gmt));
-			$post_date_mod = gmdate('c', strtotime($p_object->post_modified_gmt));
+			$post_publish_date = get_the_date('Y-m-d\TH:i:s-05:00', $post->ID);
+			$post_date_mod = get_the_modified_date('Y-m-d\TH:i:s-05:00', $post->ID);
 			$metakeywords = get_post_meta($p_object->ID, '_meta_keywords', true);
+
 
 			$url = $xml->createElement('url');
 			$url->appendChild($xml->createElement('loc', $post_permalink));
