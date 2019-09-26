@@ -26,9 +26,9 @@
 	register_deactivation_hook( __FILE__, 'gns_deactivation_fn' );
 
 	function gns_get_sitemap_posts($post_id, $post){
-		if('post'===get_post_type($post_id)){
+		if('breaking'===get_post_type($post_id)){
 			$args = array(
-				'post_type'=>'post',
+				'post_type'=>'breaking',
 				'post_status'=>'publish',
 				'orderby'=>'date',
 				'order'=>'DESC',
@@ -43,10 +43,9 @@
 			$news = get_posts($args);
 			gns_generate_xml_file($news);
 		}
-
 	}
 
-	add_action('publish_post', 'gns_get_sitemap_posts', 10, 2);
+	add_action('publish_breaking', 'gns_get_sitemap_posts', 10, 2);
 
 	function gns_generate_xml_file($posts_object){
 		date_default_timezone_set('America/Mexico_City');
@@ -60,8 +59,8 @@
 			$post_permalink = get_the_permalink($p_object->ID);
 			$post_thumbnail_url = get_the_post_thumbnail_url($p_object->ID);
 
-			$post_publish_date = get_the_date('Y-m-d\TH:i:s-05:00', $post->ID);
-			$post_date_mod = get_the_modified_date('Y-m-d\TH:i:s-05:00', $post->ID);
+			$post_publish_date = get_the_date('Y-m-d\TH:i:s-05:00', $p_object->ID);
+			$post_date_mod = get_the_modified_date('Y-m-d\TH:i:s-05:00', $p_object->ID);
 			$metakeywords = get_post_meta($p_object->ID, '_meta_keywords', true);
 
 
