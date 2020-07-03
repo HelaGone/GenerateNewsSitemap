@@ -1,8 +1,8 @@
 <?php
 	/**
 	 * Plugin Name: Generate News Sitemap
-	 * Plugin URI:  https://github.com/HelaGone/
-	 * Description: Generate xml sitemap file for Google News
+	 * Plugin URI:  https://github.com/HelaGone/GenerateNewsSitemap
+	 * Description: Generate xml file for google news sitemap
 	 * Version:     1.0.0
 	 * Author:      Holkan Luna
 	 * Author URI:  https://cubeinthebox.com/
@@ -26,8 +26,10 @@
 	register_deactivation_hook( __FILE__, 'gns_deactivation_fn' );
 
 	function gns_get_sitemap_posts($post_id, $post){
+
 		$today = date('r');
 		$antier = date('F j, Y', strtotime('-2 days', strtotime($today)));
+
 		if('breaking'===get_post_type($post_id)){
 			$args = array(
 				'post_type'=>'breaking',
@@ -45,7 +47,6 @@
 			$news = get_posts($args);
 			gns_generate_xml_file($news);
 		}
-
 	}
 
 	add_action('publish_breaking', 'gns_get_sitemap_posts', 10, 2);
@@ -71,7 +72,6 @@
 			$url->appendChild($xml->createElement('lastmod', $post_publish_date));
 			$url->appendChild($xml->createElement('changefreq', 'hourly'));
 			$url->appendChild($xml->createElement('priority', '0.9'));
-
 			$news_node = $xml->createElement('news:news');
 
 			$news_publication = $xml->createElement('news:publication');
