@@ -30,9 +30,9 @@
 		$today = date('r');
 		$antier = date('F j, Y', strtotime('-2 days', strtotime($today)));
 
-		if('breaking'===get_post_type($post_id)){
+		if('post'===get_post_type($post_id)){
 			$args = array(
-				'post_type'=>'breaking',
+				'post_type'=>'post',
 				'post_status'=>'publish',
 				'orderby'=>'date',
 				'order'=>'DESC',
@@ -49,9 +49,10 @@
 		}
 	}
 
-	add_action('publish_breaking', 'gns_get_sitemap_posts', 10, 2);
+	add_action('save_post', 'gns_get_sitemap_posts', 10, 2);
 
 	function gns_generate_xml_file($posts_object){
+
 		date_default_timezone_set('America/Mexico_City');
 		$xml = new DOMDocument('1.0', 'UTF-8');
 		$urlset = $xml->createElement('urlset');
@@ -65,7 +66,15 @@
 
 			$post_publish_date = get_the_date('Y-m-d\TH:i:s-05:00', $p_object->ID);
 			$post_date_mod = get_the_modified_date('Y-m-d\TH:i:s-05:00', $p_object->ID);
-			$metakeywords = get_post_meta($p_object->ID, '_meta_keywords', true);
+			//$metakeywords = get_post_meta($p_object->ID, '_meta_keywords', true);
+
+			$tags = get_the_tags($p_object->ID);
+			$tag_names = array();
+			if(is_array($tags)&&!empty($tags)):
+				foreach($tags as $key => $tag):
+					array_push($tag_names, $tag->name);
+				endforeach;
+			endif;
 
 			$url = $xml->createElement('url');
 			$url->appendChild($xml->createElement('loc', $post_permalink));
@@ -75,18 +84,21 @@
 			$news_node = $xml->createElement('news:news');
 
 			$news_publication = $xml->createElement('news:publication');
-			$news_publication->appendChild($xml->createElement('news:name', 'Noticieros Televisa'));
+			$news_publication->appendChild($xml->createElement('news:name', get_bloginfo('name')));
 			$news_publication->appendChild($xml->createElement('news:language', 'es'));
 			$news_node->appendChild($news_publication);
 
-			$news_node->appendChild($xml->createElement('news:genres', 'Blog'));
 			$news_node->appendChild($xml->createElement('news:publication_date', $post_publish_date));
 
 			$news_title = $xml->createElement('news:title');
 			$news_title->appendChild($xml->createCDATASection(esc_html($p_object->post_title)));
 			$news_node->appendChild($news_title);
 
-			$news_node->appendChild($xml->createElement('news:keywords', htmlspecialchars($metakeywords)));
+			// $news_image = $xml->createElement('news:image');
+			// $news_image->appendChild($xml->createElement('news:loc', $post_thumbnail_url));
+			// $news_node->appendChild($news_image);
+
+			$news_node->appendChild($xml->createElement('news:keywords', htmlspecialchars(implode(",", $tag_names))));
 
 			$url->appendChild($news_node);
 			$urlset->appendChild($url);
