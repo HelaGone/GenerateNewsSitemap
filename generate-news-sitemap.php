@@ -98,7 +98,7 @@
 			// $news_image->appendChild($xml->createElement('news:loc', $post_thumbnail_url));
 			// $news_node->appendChild($news_image);
 
-			$news_node->appendChild($xml->createElement('news:keywords', htmlspecialchars(implode(",", $tag_names))));
+			$news_node->appendChild($xml->createElement('news:keywords', implode(",", $tag_names)));
 
 			$url->appendChild($news_node);
 			$urlset->appendChild($url);
